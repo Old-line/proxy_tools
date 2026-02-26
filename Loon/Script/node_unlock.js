@@ -64,15 +64,30 @@ function geminiTest() {
             url: GEMINI_BASE_URL,
             node: nodeName,
             timeout: 5000,
-            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36' }
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+            }
         }
-        $httpClient.get(params, (err, resp, data) => {
-            if (err || !data) {
+        $httpClient.get(params, (errormsg, response, data) => {
+            if (errormsg || !data) {
                 result["Gemini"] = "<b>Gemini: </b>检测失败 ❗️";
             } else if (data.indexOf('is not currently available') !== -1 || data.indexOf('goog-gt-tt') !== -1) {
                 result["Gemini"] = "<b>Gemini: </b>未支持 🚫";
-            } else if (resp.status == 200) {
-                result["Gemini"] = "<b>Gemini: </b>支持 🎉";
+            } else if (response.status == 200) {
+                // 尝试从 Google 的响应头或页面特征中提取国家
+                // 如果无法精准提取，我们可以复用 ChatGPT 的 RegionL 接口来获取该节点的物理地区
+                $httpClient.get({url: GPT_RegionL_URL, node: nodeName, timeout: 4000}, (emsg, res, resData) => {
+                    let regionInfo = "";
+                    if (!emsg && resData) {
+                        let region = resData.split("loc=")[1]?.split("\n")[0];
+                        if (region) {
+                            regionInfo = " " + arrow + "⟦" + (flags.get(region.toUpperCase()) || region) + "⟧";
+                        }
+                    }
+                    result["Gemini"] = "<b>Gemini: </b>支持" + regionInfo + " 🎉";
+                    resolve();
+                });
+                return; // 异步查地区，由内部 resolve
             } else {
                 result["Gemini"] = "<b>Gemini: </b>未支持 🚫";
             }
@@ -119,22 +134,39 @@ function ytbTest() {
 }
 
 function gptTest() {
-    const support_countryCodes=["T1","XX","AL","DZ","AD","AO","AG","AR","AM","AU","AT","AZ","BS","BD","BB","BE","BZ","BJ","BT","BA","BW","BR","BG","BF","CV","CA","CL","CO","KM","CR","HR","CY","DK","DJ","DM","DO","EC","SV","EE","FJ","FI","FR","GA","GM","GE","DE","GH","GR","GD","GT","GN","GW","GY","HT","HN","HU","IS","IN","ID","IQ","IE","IL","IT","JM","JP","JO","KZ","KE","KI","KW","KG","LV","LB","LS","LR","LI","LT","LU","MG","MW","MY","MV","ML","MT","MH","MR","MU","MX","MC","MN","ME","MA","MZ","MM","NA","NR","NP","NL","NZ","NI","NE","NG","MK","NO","OM","PK","PW","PA","PG","PE","PH","PL","PT","QA","RO","RW","KN","LC","VC","WS","SM","ST","SN","RS","SC","SL","SG","SK","SI","SB","ZA","ES","LK","SR","SE","CH","TH","TG","TO","TT","TN","TR","TV","UG","AE","US","UY","VU","ZM","BO","BN","CG","CZ","VA","FM","MD","PS","KR","TW","TZ","TL","GB"];
     return new Promise((resolve) => {
-        $httpClient.get({url: GPT_BASE_URL, node: nodeName, timeout: 5000}, (err, resp, data) => {
-            if (err) { result["ChatGPT"] = "<b>ChatGPT: </b>未支持 🚫"; resolve(); return; }
-            if (JSON.stringify(data).indexOf("text/plain") == -1) {
+        $httpClient.get({
+            url: GPT_BASE_URL, 
+            node: nodeName, 
+            timeout: 5000,
+            'auto-redirect': false // 关键：禁止自动重定向
+        }, (err, resp, data) => {
+            if (err) {
+                result["ChatGPT"] = "<b>ChatGPT: </b>未支持 🚫";
+                resolve();
+                return;
+            }
+            // 逻辑：如果直接能访问（200）且不是报错文本，则进一步查地区
+            if (resp.status == 200 && (data && data.indexOf("text/plain") == -1)) {
                 $httpClient.get({url: GPT_RegionL_URL, node: nodeName, timeout: 5000}, (emsg, res, resData) => {
-                    if (emsg) { result["ChatGPT"] = "<b>ChatGPT: </b>检测失败 ❗️"; resolve(); return; }
-                    let region = resData.split("loc=")[1].split("\n")[0];
-                    if (support_countryCodes.indexOf(region) != -1) {
-                        result["ChatGPT"] = "<b>ChatGPT: </b>支持 " + arrow + "⟦" + flags.get(region.toUpperCase()) + "⟧ 🎉";
-                    } else { result["ChatGPT"] = "<b>ChatGPT: </b>未支持 🚫"; }
+                    if (emsg || !resData) {
+                        result["ChatGPT"] = "<b>ChatGPT: </b>检测失败 ❗️";
+                    } else {
+                        let region = resData.split("loc=")[1]?.split("\n")[0];
+                        if (region && support_countryCodes.indexOf(region.toUpperCase()) != -1) {
+                            result["ChatGPT"] = "<b>ChatGPT: </b>支持 ➟ ⟦" + (flags.get(region.toUpperCase()) || region) + "⟧ 🎉";
+                        } else {
+                            result["ChatGPT"] = "<b>ChatGPT: </b>未支持 🚫";
+                        }
+                    }
                     resolve();
-                })
-            } else { result["ChatGPT"] = "<b>ChatGPT: </b>未支持 🚫"; resolve(); }
-        })
-    })
+                });
+            } else {
+                result["ChatGPT"] = "<b>ChatGPT: </b>未支持 🚫";
+                resolve();
+            }
+        });
+    });
 }
 
 function disneyLocation() {
