@@ -1,16 +1,16 @@
 /*
-脚本引用https://gitlab.com/lodepuly/vpn_tool/-/raw/master/Resource/Script/Node_detection_tool/NodeUnlockDetection.js
+脚本引用https://github.com/BOBOLAOSHIV587/Rules/blob/4cedd99b3af95c00d17059b9a3c7baca10b01184/Loon/NodeTools/JS/NodeUnlockDetection.js
 */
 /*
  * 节点解锁查询
  * 感谢并修改自 https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/streaming-ui-check.js
  * 脚本功能：检查节点是否支持Dazn/Discovery/Param/Disney/Netflix/ChatGPT/YouTube解锁服务
- * 原作者：XIAO_KOP
+ * 原作者：XIAO_KOP  keywos
+ * 2025.6.7  修复ChatGPT检测（禁用308重定向） by dcpengx
  */
 /*
-脚本引用自：mphin & BOBOLAOSHIV587
 修改：Old-line
-功能：支持 Dazn/Discovery/Paramount/Disney/Netflix/ChatGPT/Gemini/YouTube 解锁服务检测
+功能：增加Gemini服务检测
 */
 
 const NF_BASE_URL = "https://www.netflix.com/title/81280792";
