@@ -1,0 +1,17 @@
+/*
+插件引用https://gitlab.com/lodepuly/vpn_tool/-/raw/master/Tool/Loon/Plugin/Node_detection_tool.plugin
+*/
+#!name = 节点检测工具[DIY]
+#!desc = 适用于Loon的节点检测工具，可进行地理位置、节点解锁、节点网速、入口落地等查询。请在所有节点页面选择一个节点长按，出现菜单后进行测试。
+#!author = Old-line
+#!homepage = https://github.com/Old-line/proxy_tools
+#!date = 2026-02-26 10:00:00
+#!icon = https://fastly.jsdelivr.net/gh/Orz-3/mini@master/Color/Speedtest.png
+
+[Script]
+# 入口落地查询 
+generic script-path = https://raw.githubusercontent.com/BOBOLAOSHIV587/Rules/main/Surge/Module/NetISP/JS/Loon.js, timeout = 10, tag = 入口落地查询, img-url = globe.circle.system
+# 地理位置查询
+generic script-path = https://raw.githubusercontent.com/mphin/proxy_tools/main/scripts/loon_node_tool/script/locationdetection.js, timeout = 10, tag = 地理位置查询, img-url = location.circle.system
+# 自定义解锁查询（自己写的）
+generic script-path = https://raw.githubusercontent.com/Old-line/proxy_tools/main/Loon/Script/node_unlock.js, timeout = 20, tag = 自定义解锁查询, img-url = play.circle.system
