@@ -1,8 +1,8 @@
 /*
-插件引用https://gitlab.com/lodepuly/vpn_tool/-/raw/master/Tool/Loon/Plugin/Node_detection_tool.plugin
+插件参考https://gitlab.com/lodepuly/vpn_tool/-/raw/master/Tool/Loon/Plugin/Node_detection_tool.plugin
 */
 #!name = 节点检测工具[DIY]
-#!desc = 适用于Loon的节点检测工具，可进行地理位置、节点解锁、节点网速、入口落地等查询。请在所有节点页面选择一个节点长按，出现菜单后进行测试。
+#!desc = 适用于Loon的节点检测工具，可进行入口落地、节点地理位置、落地IP的欺诈、节点解锁等查询。请在所有节点页面选择一个节点长按，出现菜单后进行测试。
 #!author = Old-line
 #!homepage = https://github.com/Old-line/proxy_tools
 #!date = 2026-02-27 10:00:00
@@ -10,9 +10,12 @@
 
 [Script]
 # 入口落地查询 
-generic script-path = https://raw.githubusercontent.com/BOBOLAOSHIV587/Rules/main/Surge/Module/NetISP/JS/Loon.js, timeout = 10, tag = 入口落地查询, img-url = arrow.up.arrow.down.circle.fill.system
+generic script-path = https://raw.githubusercontent.com/BOBOLAOSHIV587/Rules/main/Loon/NodeTools/JS/NodeInfo.js, timeout = 10, tag = 入口落地查询, img-url = arrow.up.arrow.down.circle.fill.system
+# generic script-path = https://raw.githubusercontent.com/BOBOLAOSHIV587/Rules/main/Surge/Module/NetISP/JS/Loon.js, timeout = 10, tag = 入口落地查询, img-url = arrow.up.arrow.down.circle.fill.system
 # 地理位置查询
 generic script-path = https://raw.githubusercontent.com/mphin/proxy_tools/main/scripts/loon_node_tool/script/locationdetection.js, timeout = 10, tag = 地理位置查询, img-url = globe.americas.system
+# 落地IP欺诈查询 
+generic script-path = https://raw.githubusercontent.com/BOBOLAOSHIV587/Rules/main/Loon/NodeTools/JS/Scamalytic/Scamalytic.js, timeout = 30, tag = IP欺诈评分查询, img-url = nosign.system
 # 节点解锁查询
 generic script-path = https://raw.githubusercontent.com/BOBOLAOSHIV587/Rules/4cedd99b3af95c00d17059b9a3c7baca10b01184/Loon/NodeTools/JS/NodeUnlockDetection.js, timeout = 20, tag = 节点解锁查询, img-url = lock.open.fill.system
 # AI解锁查询（自己写的）
