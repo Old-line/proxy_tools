@@ -78,38 +78,52 @@ function gptTest() {
 function geminiTest() {
     return new Promise((resolve) => {
         let params = {
-            url: GEMINI_BASE_URL,
+            url: 'https://gemini.google.com/app',
             node: nodeName,
             timeout: 5000,
-            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36' }
-        }
-        $httpClient.get(params, (err, response, data) => {
-            // 1. 初步检查：如果有错误或明确的 403，判定为不支持
-            if (err || (response && response.status === 403) || (data && data.indexOf('is not currently supported') !== -1)) {
-                result["Gemini"] = "<b>Gemini: </b>未支持 🚫"
-                return resolve()
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                'Accept-Language': 'en-US,en;q=0.9'
+            }
+        };
+
+        $httpClient.get(params, (errormsg, response, data) => {
+            // 1. 网络错误或 403 明确屏蔽
+            if (errormsg || (response && response.status === 403)) {
+                result["Gemini"] = "<b>Gemini: </b>未支持 🚫";
+                return resolve();
             }
 
-            // 2. 如果初步通过，请求定位接口获取地区 (参考 GPT 逻辑)
-            $httpClient.get({url: GPT_RegionL_URL, node: nodeName, timeout: 5000}, (e, r, d) => {
-                if (e || !d) {
-                    result["Gemini"] = "<b>Gemini: </b>检测失败 ❗️"
-                    return resolve()
+            // 2. 检查页面内容是否包含“不支持”关键字
+            if (data && (data.indexOf('is not currently supported') !== -1 || data.indexOf('unsupported_country_outreach') !== -1)) {
+                result["Gemini"] = "<b>Gemini: </b>未支持 🚫";
+                return resolve();
+            }
+
+            // 3. 通过 API 获取区域信息
+            $httpClient.get({
+                url: 'https://alkalicognitoretrieval-pa.googleapis.com/v1/oneandonly:getRegions',
+                node: nodeName,
+                timeout: 5000
+            }, (e, r, d) => {
+                // 判定为支持的条件
+                if ((!e && r && r.status === 200) || (response && response.status === 200)) {
+                    // --- 仅在支持时，额外请求一次定位以获取国旗 ---
+                    $httpClient.get({url: GPT_RegionL_URL, node: nodeName, timeout: 5000}, (locE, locR, locD) => {
+                        let region = "";
+                        if (!locE && locD) {
+                            region = locD.split("loc=")[1].split("\n")[0];
+                        }
+                        let flag = region ? (flags.get(region.toUpperCase()) || region) : "";
+                        // 对齐 ChatGPT 的输出格式
+                        result["Gemini"] = "<b>Gemini: </b>支持 " + arrow + "⟦" + flag + "⟧ 🎉";
+                        resolve();
+                    });
+                } else {
+                    result["Gemini"] = "<b>Gemini: </b>未支持 🚫";
+                    resolve();
                 }
-                
-                let region = d.split("loc=")[1].split("\n")[0]
-                
-                // 3. 访问 Gemini 官方区域验证 API 最终确认
-                $httpClient.get({url: GEMINI_REGIONS_URL, node: nodeName, timeout: 5000}, (apiE, apiR, apiD) => {
-                    if (!apiE && apiR.status === 200) {
-                        // 判定支持，并使用 flags.get 显示对应的国旗
-                        result["Gemini"] = "<b>Gemini: </b>支持 " + arrow + "⟦" + flags.get(region.toUpperCase()) + "⟧ 🎉"
-                    } else {
-                        result["Gemini"] = "<b>Gemini: </b>未支持 🚫"
-                    }
-                    resolve()
-                })
-            })
-        })
-    })
+            });
+        });
+    });
 }
