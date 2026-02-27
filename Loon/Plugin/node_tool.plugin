@@ -14,4 +14,5 @@ generic script-path = https://raw.githubusercontent.com/BOBOLAOSHIV587/Rules/mai
 # 地理位置查询
 generic script-path = https://raw.githubusercontent.com/mphin/proxy_tools/main/scripts/loon_node_tool/script/locationdetection.js, timeout = 10, tag = 地理位置查询, img-url = location.circle.system
 # 自定义解锁查询（自己写的）
-generic script-path = https://raw.githubusercontent.com/Old-line/proxy_tools/main/Loon/Script/node_unlock.js, timeout = 20, tag = 自定义解锁查询, img-url = play.circle.system
+# generic script-path = https://raw.githubusercontent.com/Old-line/proxy_tools/main/Loon/Script/node_unlock.js, timeout = 20, tag = 自定义解锁查询, img-url = play.circle.system
+# generic script-path = https://github.com/BOBOLAOSHIV587/Rules/blob/4cedd99b3af95c00d17059b9a3c7baca10b01184/Loon/NodeTools/JS/NodeUnlockDetection.js, timeout = 20, tag = 自定义解锁查询, img-url = play.circle.system
