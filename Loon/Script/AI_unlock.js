@@ -100,22 +100,25 @@ function geminiTest() {
                 return resolve();
             }
 
-            // 3. 通过 API 获取区域信息
+            // 3. 进阶：通过 API 获取区域信息
             $httpClient.get({
                 url: 'https://alkalicognitoretrieval-pa.googleapis.com/v1/oneandonly:getRegions',
                 node: nodeName,
                 timeout: 5000
             }, (e, r, d) => {
-                // 判定为支持的条件
+                // 如果检测到支持（API返回200 或者 页面本身返回200）
                 if ((!e && r && r.status === 200) || (response && response.status === 200)) {
-                    // --- 仅在支持时，额外请求一次定位以获取国旗 ---
+                    
+                    // --- 只有在确认支持后，才去拿一下国旗，参考 ChatGPT 的定位方式 ---
                     $httpClient.get({url: GPT_RegionL_URL, node: nodeName, timeout: 5000}, (locE, locR, locD) => {
                         let region = "";
-                        if (!locE && locD) {
+                        if (!locE && locD && locD.indexOf("loc=") !== -1) {
                             region = locD.split("loc=")[1].split("\n")[0];
                         }
-                        let flag = region ? (flags.get(region.toUpperCase()) || region) : "";
-                        // 对齐 ChatGPT 的输出格式
+                        // 匹配国旗，如果没匹配到则显示地区代码
+                        let flag = region ? (flags.get(region.toUpperCase()) || region) : "未知";
+                        
+                        // 输出格式完全参考 ChatGPT 的 result["ChatGPT"] = "<b>ChatGPT: </b>支持 "+arrow+ "⟦"+flags.get(region.toUpperCase())+"⟧ 🎉"
                         result["Gemini"] = "<b>Gemini: </b>支持 " + arrow + "⟦" + flag + "⟧ 🎉";
                         resolve();
                     });
