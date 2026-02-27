@@ -16,4 +16,4 @@ generic script-path = https://raw.githubusercontent.com/mphin/proxy_tools/main/s
 # 节点解锁查询
 generic script-path = https://raw.githubusercontent.com/BOBOLAOSHIV587/Rules/4cedd99b3af95c00d17059b9a3c7baca10b01184/Loon/NodeTools/JS/NodeUnlockDetection.js, timeout = 20, tag = 节点解锁查询, img-url = lock.open.fill.system
 # AI解锁查询（自己写的）
-generic script-path = https://raw.githubusercontent.com/Old-line/proxy_tools/main/Loon/Script/node_unlock.js, timeout = 10, tag = AI解锁查询, img-url = android.system
+generic script-path = https://raw.githubusercontent.com/Old-line/proxy_tools/main/Loon/Script/AI_unlock.js, timeout = 10, tag = AI解锁查询, img-url = android.system
