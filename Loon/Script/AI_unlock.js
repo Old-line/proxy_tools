@@ -75,6 +75,68 @@ function gptTest() {
 }
 
 // --- Gemini 检测 
+明白你的意思了。你是希望 Gemini 的检测结果也像 ChatGPT 那样，能够精准地抓取并显示节点所在的国家/地区国旗。
+
+要实现这一点，Gemini 的检测函数必须在确认解锁后，去请求一次定位接口（GPT_RegionL_URL），并使用 flags.get() 来匹配图标。
+
+以下是为你修改后的完整代码。我严格参考了你提供的 ChatGPT 逻辑，确保 Gemini 的输出格式与其完全一致：
+
+JavaScript
+// --- 配置部分 ---
+const GPT_BASE_URL = 'https://chat.openai.com/'
+const GPT_RegionL_URL = 'https://chat.openai.com/cdn-cgi/trace'
+const GEMINI_BASE_URL = 'https://gemini.google.com/app'
+const GEMINI_REGIONS_URL = 'https://alkalicognitoretrieval-pa.googleapis.com/v1/oneandonly:getRegions'
+
+// --- 执行主程序 ---
+Promise.all([gptTest(), geminiTest()]).then(value => {
+    let content = "------------------------------------</br>"+([result["ChatGPT"], result["Gemini"]]).join("</br></br>")
+    content = content + "</br>------------------------------------</br>"+"<font color=#CD5C5C>"+"<b>节点</b> ➟ " + nodeName+ "</font>"
+    content =`<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + content + `</p>`
+    $done({"title":result["title"],"htmlMessage":content})
+})
+
+// --- ChatGPT 检测 (保持你参考的代码逻辑) ---
+function gptTest() {
+    return new Promise((resolve) => {
+        let params = {
+            url: GPT_BASE_URL,
+            node: nodeName,
+            timeout: 5000,
+            'auto-redirect': false,
+        }
+        $httpClient.get(params, (errormsg, response, data) => {
+            if (errormsg) {
+                result["ChatGPT"] = "<b>ChatGPT: </b>未支持 🚫"
+                return resolve()
+            } 
+            let resp = JSON.stringify(response)
+            let jdg = resp.indexOf("text/plain")
+            if (jdg == -1) {
+                $httpClient.get({url: GPT_RegionL_URL, node: nodeName, timeout: 5000}, (emsg, resheader, resData) => {
+                    if (emsg) {
+                        result["ChatGPT"] = "<b>ChatGPT: </b>检测失败 ❗️";
+                        return resolve();
+                    }
+                    let region = resData.split("loc=")[1].split("\n")[0]
+                    let res = support_countryCodes.indexOf(region)
+                    if (res != -1) {
+                        // 这里是你强调的国旗显示逻辑
+                        result["ChatGPT"] = "<b>ChatGPT: </b>支持 " + arrow + "⟦" + flags.get(region.toUpperCase()) + "⟧ 🎉"
+                    } else {
+                        result["ChatGPT"] = "<b>ChatGPT: </b>未支持 🚫"
+                    }
+                    resolve()
+                })
+            } else {
+                result["ChatGPT"] = "<b>ChatGPT: </b>未支持 🚫"
+                resolve()
+            }
+        })
+    })
+}
+
+// --- Gemini 检测 (修改后：支持显示地区国旗) ---
 function geminiTest() {
     return new Promise((resolve) => {
         let params = {
@@ -84,23 +146,26 @@ function geminiTest() {
             headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36' }
         }
         $httpClient.get(params, (err, response, data) => {
-            // 1. 先通过页面关键字初步判断
+            // 1. 初步检查：如果有错误或明确的 403，判定为不支持
             if (err || (response && response.status === 403) || (data && data.indexOf('is not currently supported') !== -1)) {
                 result["Gemini"] = "<b>Gemini: </b>未支持 🚫"
                 return resolve()
             }
 
-            // 2. 如果初步通过，去获取地区代码
+            // 2. 如果初步通过，请求定位接口获取地区 (参考 GPT 逻辑)
             $httpClient.get({url: GPT_RegionL_URL, node: nodeName, timeout: 5000}, (e, r, d) => {
-                let region = ""
-                if (!e && d) region = d.split("loc=")[1].split("\n")[0]
+                if (e || !d) {
+                    result["Gemini"] = "<b>Gemini: </b>检测失败 ❗️"
+                    return resolve()
+                }
                 
-                // 3. 访问 API 最终确认解锁状态
+                let region = d.split("loc=")[1].split("\n")[0]
+                
+                // 3. 访问 Gemini 官方区域验证 API 最终确认
                 $httpClient.get({url: GEMINI_REGIONS_URL, node: nodeName, timeout: 5000}, (apiE, apiR, apiD) => {
                     if (!apiE && apiR.status === 200) {
-                        // 匹配成功，显示国旗
-                        let flagEmoji = region ? flags.get(region.toUpperCase()) : "未知"
-                        result["Gemini"] = "<b>Gemini: </b>支持 ➟ ⟦" + flagEmoji + "⟧ 🎉"
+                        // 判定支持，并使用 flags.get 显示对应的国旗
+                        result["Gemini"] = "<b>Gemini: </b>支持 " + arrow + "⟦" + flags.get(region.toUpperCase()) + "⟧ 🎉"
                     } else {
                         result["Gemini"] = "<b>Gemini: </b>未支持 🚫"
                     }
