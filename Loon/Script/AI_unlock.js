@@ -75,19 +75,39 @@ function gptTest() {
 function geminiTest() {
     return new Promise((resolve) => {
         let params = {
-            url: GEMINI_BASE_URL,
+            url: 'https://gemini.google.com/app',
             node: nodeName,
             timeout: 5000,
-            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36' }
-        }
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                'Accept-Language': 'en-US,en;q=0.9'
+            }
+        };
+
         $httpClient.get(params, (errormsg, response, data) => {
+            // 1. 网络错误或 403 明确屏蔽
             if (errormsg || (response && response.status === 403)) {
                 result["Gemini"] = "<b>Gemini: </b>未支持 🚫";
                 return resolve();
             }
-            // 访问 Gemini 专用区域验证 API
-            $httpClient.get({url: GEMINI_REGIONS_URL, node: nodeName, timeout: 5000}, (e, r, d) => {
-                if (!e && r.status === 200) {
+
+            // 2. 检查页面内容是否包含“不支持”关键字
+            if (data && (data.indexOf('is not currently supported') !== -1 || data.indexOf('unsupported_country_outreach') !== -1)) {
+                result["Gemini"] = "<b>Gemini: </b>未支持 🚫";
+                return resolve();
+            }
+
+            // 3. 进阶：通过 API 获取区域信息 (双重保险)
+            $httpClient.get({
+                url: 'https://alkalicognitoretrieval-pa.googleapis.com/v1/oneandonly:getRegions',
+                node: nodeName,
+                timeout: 5000
+            }, (e, r, d) => {
+                if (!e && r && r.status === 200) {
+                    // API 返回 200 说明该节点确实在服务区
+                    result["Gemini"] = "<b>Gemini: </b>支持 🎉";
+                } else if (response && response.status === 200) {
+                    // 如果 API 挂了但主页面能进且没报错，也判定为支持
                     result["Gemini"] = "<b>Gemini: </b>支持 🎉";
                 } else {
                     result["Gemini"] = "<b>Gemini: </b>未支持 🚫";
