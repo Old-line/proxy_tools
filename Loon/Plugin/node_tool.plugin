@@ -5,7 +5,7 @@
 #!desc = 适用于Loon的节点检测工具，可进行地理位置、节点解锁、节点网速、入口落地等查询。请在所有节点页面选择一个节点长按，出现菜单后进行测试。
 #!author = Old-line
 #!homepage = https://github.com/Old-line/proxy_tools
-#!date = 2026-02-26 10:00:00
+#!date = 2026-02-27 10:00:00
 #!icon = https://fastly.jsdelivr.net/gh/Orz-3/mini@master/Color/Speedtest.png
 
 [Script]
@@ -16,4 +16,4 @@ generic script-path = https://raw.githubusercontent.com/mphin/proxy_tools/main/s
 # 节点解锁查询
 generic script-path = https://raw.githubusercontent.com/BOBOLAOSHIV587/Rules/4cedd99b3af95c00d17059b9a3c7baca10b01184/Loon/NodeTools/JS/NodeUnlockDetection.js, timeout = 20, tag = 节点解锁查询, img-url = lock.open.fill.system
 # AI解锁查询（自己写的）
-generic script-path = https://raw.githubusercontent.com/Old-line/proxy_tools/main/Loon/Script/node_unlock.js, timeout = 20, tag = AI解锁查询, img-url = robot.system
+generic script-path = https://raw.githubusercontent.com/Old-line/proxy_tools/main/Loon/Script/node_unlock.js, timeout = 10, tag = AI解锁查询, img-url = android.system
