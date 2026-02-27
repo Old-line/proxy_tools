@@ -10,12 +10,12 @@
 
 [Script]
 # 入口落地查询 
-generic script-path = https://raw.githubusercontent.com/BOBOLAOSHIV587/Rules/main/Loon/NodeTools/JS/NodeInfo.js, timeout = 10, tag = 入口落地查询, img-url = arrow.up.arrow.down.circle.fill.system
 # generic script-path = https://raw.githubusercontent.com/BOBOLAOSHIV587/Rules/main/Surge/Module/NetISP/JS/Loon.js, timeout = 10, tag = 入口落地查询, img-url = arrow.up.arrow.down.circle.fill.system
+generic script-path =  https://raw.githubusercontent.com/xream/scripts/main/surge/modules/network-info/net-lsp-x.js, timeout = 10, tag = 入口落地查询, img-url = arrow.up.arrow.down.circle.fill.system
 # 地理位置查询
 generic script-path = https://raw.githubusercontent.com/mphin/proxy_tools/main/scripts/loon_node_tool/script/locationdetection.js, timeout = 10, tag = 地理位置查询, img-url = globe.americas.system
 # 落地IP欺诈查询 
-generic script-path = https://raw.githubusercontent.com/BOBOLAOSHIV587/Rules/main/Loon/NodeTools/JS/Scamalytic/Scamalytic.js, timeout = 30, tag = IP欺诈评分查询, img-url = nosign.system
+generic script-path = https://raw.githubusercontent.com/BOBOLAOSHIV587/Rules/4cedd99b3af95c00d17059b9a3c7baca10b01184/Loon/NodeTools/JS/Scamalytics/Scamalytics.js, timeout = 30, tag = IP欺诈评分查询, img-url = nosign.system
 # 节点解锁查询
 generic script-path = https://raw.githubusercontent.com/BOBOLAOSHIV587/Rules/4cedd99b3af95c00d17059b9a3c7baca10b01184/Loon/NodeTools/JS/NodeUnlockDetection.js, timeout = 20, tag = 节点解锁查询, img-url = lock.open.fill.system
 # AI解锁查询（自己写的）
